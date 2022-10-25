@@ -1,0 +1,50 @@
+Laser-scanning CS.
+
+* Version 1.1
+
+This file lists the changes from the original code of TVAL3 v 1.0.
+
+-----------------------------------------
+Modified files
+-----------------------------------------
+
+* Remove hard-coded use of cnt and use the global option opts.maxcnt instead
+    ftvcs_alp.m and ftvcs_al_TVL2p.m
+    
+    
+-----------------------------------------
+Added files
+-----------------------------------------
+
+* Adding various new measurement matrices conditions:
+    - Fourier ensemble (for comparison in simulations)
+        A_fFT.m and At_fFT.m
+    - Spatial sub-sampling
+        A_sf.m and At_sf.m
+    - Spatial with imaging model included
+        A_fPsfF.m and At_fPsfD.m
+
+* Prepare an optical transfer function mask based on a small extent PSF
+    makeOTF.m
+
+* Extension to 3D for spectral images:
+    - Frobenius norm in 3D
+        normfro.m
+    - 3D directional gradients:
+        defDDT3.m
+    - 3D solver:
+        ftvcs_alp3.m and TVAL3Spectral.m
+        
+* Pattern creation for use in simulations        
+    createPattern.m
+    
+* Poisson noise generator
+    PoissonFct.m
+        
+* Wrapper functions for simpler use
+    ConfocalCS.m and RamanCS.m
+
+* Example script
+    exampleSimulated.m, exampleConfocal.m, exampleRaman.m
+    
+    
