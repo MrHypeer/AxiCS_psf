@@ -7,15 +7,16 @@
 % Copyright (C) 2015-2017  Nicolas Pavillon, Osaka University
 
 %% Choose reconstruction type: 1 (spatial) or 2 (PSF included)
-recType = 2;
+recType = 1;
 
 %% Retrieve data
 imageName = 'im1'; %other: im2
 
-im = imread(['Data/Confocal_Data/', imageName, '-256.tif']);
-imFull = imread(['Data/Confocal_Data/', imageName, '-1024.tif']);
+data_folder = '../data_psf/Confocal_Data/';
+im = imread([data_folder, imageName, '-256.tif']);
+imFull = imread([data_folder, imageName, '-1024.tif']);
 if (recType == 2)
-    psfIm = imread('Data/Confocal_Data/5-PSF_avg_centered.tif');
+    psfIm = imread(strcat(data_folder,'5-PSF_avg_centered.tif'));
     cutoff = 0.15;      %Cut-off     
 else
     PSF = [];

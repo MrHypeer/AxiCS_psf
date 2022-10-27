@@ -17,7 +17,7 @@
 function b = A_fPsfF(x, dim, picks, OTF)
 
     K = length(picks);
-    if (size(picks, 1) == 1)
+    if (size(picks, 1) == 1) % make sure dim is m*1
         picks = picks';
     end
     
@@ -49,6 +49,6 @@ function b = A_fPsfF(x, dim, picks, OTF)
     %1:K/2: symmetric part
     %K/2+1: pivot value
     %1 and K/2+1 are real (imag = 0)
-    b = sqrt(2) * [real(fx(1:K/2+1, :)); imag(fx(2:K/2, :))];
+    b = sqrt(2) * [real(fx(1:K/2+1, :)); imag(fx(2:K/2, :))]; % why 2 offset
     
 end

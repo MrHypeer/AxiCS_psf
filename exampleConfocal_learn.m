@@ -6,11 +6,12 @@
 %
 % Copyright (C) 2015-2017  Nicolas Pavillon, Osaka University
 
+clear all
 %% Choose reconstruction type: 1 (spatial) or 2 (PSF included)
-recType = 1;
+recType = 2;
 
 %% Retrieve data
-imageName = 'im1'; %other: im2
+imageName = 'im2'; %other: im2
 
 data_folder = '../data_psf/Confocal_Data/';
 im = imread([data_folder, imageName, '-256.tif']);
@@ -36,6 +37,7 @@ if (recType == 2)
     lambda2 = 511; %nm, ER-tracker
     
     %Scaling the pixel size with the wavelength
+    % why pixel size is related with wavelength???
     dx3 = dx2*lambda/lambda2;
     
     %Create the xy map (assuming even-sized square image)

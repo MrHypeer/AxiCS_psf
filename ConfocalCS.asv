@@ -44,7 +44,7 @@ s = size(image); % 256,256
 [subX, subY] = meshgrid( floor(ratio/2)+1:ratio:ratio*s(1), ...
                          floor(ratio/2)+1:ratio:ratio*s(2));
 
-%Computing indices, sparse raw_data to reconstruction dimension
+%Computing indices
 newIdx = sub2ind(ratio*s, subY(:), subX(:));
 
 %% Preparing sparse data

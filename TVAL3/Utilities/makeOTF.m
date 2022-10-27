@@ -33,7 +33,7 @@ N2 = floor(N/2)+1;
 M = size(PSF, 2);
 M2 = floor(M/2)+1;
 
-%Putting PSF at origin
+%Putting PSF at origin, operation like fftshift
 OTF(1:N2, 1:M2) = PSF(N2:end, M2:end);
 OTF(end-N2+2:end, 1:M2) = PSF(1:N2-1, M2:end);
 OTF(1:N2, end-M2+2:end) = PSF(N2:end, 1:M2-1);
