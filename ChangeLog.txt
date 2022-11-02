@@ -10,6 +10,8 @@ Modified files
 
 * Remove hard-coded use of cnt and use the global option opts.maxcnt instead
     ftvcs_alp.m and ftvcs_al_TVL2p.m
+**********LIU Gan
+
     
     
 -----------------------------------------
@@ -46,5 +48,8 @@ Added files
 
 * Example script
     exampleSimulated.m, exampleConfocal.m, exampleRaman.m
+
+
+    
     
     

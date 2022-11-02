@@ -40,12 +40,13 @@ end
 
 
 %% Preparing indices in which to put data
-s = size(image); % 256,256
-[subX, subY] = meshgrid( floor(ratio/2)+1:ratio:ratio*s(1), ...
-                         floor(ratio/2)+1:ratio:ratio*s(2));
-
+% this part was modified to suit square FOV from DMD
+s = size(image); 
+[subX, subY] = meshgrid( floor(ratio/2)+1:ratio:ratio*s(2), ...
+                         floor(ratio/2)+1:ratio:ratio*s(1)); 
+                     
 %Computing indices, sparse raw_data to reconstruction dimension
-newIdx = sub2ind(ratio*s, subY(:), subX(:));
+newIdx = sub2ind(ratio*s, subY(:), subX(:)); 
 
 %% Preparing sparse data
 sparseData = zeros(ratio*s);

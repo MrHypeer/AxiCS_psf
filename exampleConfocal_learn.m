@@ -11,11 +11,11 @@ clear all
 recType = 2;
 
 %% Retrieve data
-imageName = 'im2'; %other: im2
+imageName = 'tulip'; %other: im2
 
 data_folder = '../data_psf/Confocal_Data/';
-im = imread([data_folder, imageName, '-256.tif']);
-imFull = imread([data_folder, imageName, '-1024.tif']);
+im = imread([data_folder, imageName, '-6030.tif']);
+imFull = imread([data_folder, imageName, '-240120.tif']);
 if (recType == 2)
     psfIm = imread(strcat(data_folder,'5-PSF_avg_centered.tif'));
     cutoff = 0.15;      %Cut-off     

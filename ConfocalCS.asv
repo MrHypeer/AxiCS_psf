@@ -40,15 +40,16 @@ end
 
 
 %% Preparing indices in which to put data
-s = size(image); % 256,256
+s = size(image); % transpose size 
 [subX, subY] = meshgrid( floor(ratio/2)+1:ratio:ratio*s(1), ...
-                         floor(ratio/2)+1:ratio:ratio*s(2));
-
-%Computing indices
-newIdx = sub2ind(ratio*s, subY(:), subX(:));
+                         floor(ratio/2)+1:ratio:ratio*s(2)); 
+                     
+%Computing indices, sparse raw_data to reconstruction dimension
+newIdx = sub2ind_rect(ratio*s, subX(:), subY(:)); 
+% change to local function and exchange subX and subY
 
 %% Preparing sparse data
-sparseData = zeros(ratio*s);
+sparseData = zeros(ratio*[s(2),s(1)]);
 sparseData(newIdx) = image(:);
 
 %Finally, randomize indices
