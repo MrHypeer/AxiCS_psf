@@ -59,9 +59,19 @@ tic
 [rec, samples] = ConfocalCS(im, ratio, recType, PSF, cutoff);
 t = toc;
 
+figure(1)
 subplot(221), imagesc(im), title('Measured low-res image')
 subplot(222), imagesc(samples), title('Sampling grid');
 subplot(223), imagesc(rec), title('Reconstruction')
 subplot(224), imagesc(imFull), title('Measured full-res image (comparison)');
 disp(['Reconstruction time: ', num2str(t), ' s']);
+
+%% plot intensity profile along sample
+% normalize two contrasting objects
+rec_normline = mapminmax(rec(125,:),0,1);
+imFull_normline = mapminmax(imFull(125,:),0,1);
+figure(2)
+plot(1:size(rec,2), rec_normline, 1:size(imFull,2), circshift(imFull_normline,-4))
+legend('reconstructed','full resolution')
+
 
