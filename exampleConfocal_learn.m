@@ -11,11 +11,11 @@ clear all
 recType = 2;
 
 %% Retrieve data
-imageName = 'tulip'; %other: im2
+imageName = 'im1'; %other: im2
 
 data_folder = '../data_psf/Confocal_Data/';
-im = imread([data_folder, imageName, '-6030.tif']);
-imFull = imread([data_folder, imageName, '-240120.tif']);
+im = imread([data_folder, imageName, '-256.tif']);
+imFull = imread([data_folder, imageName, '-1024.tif']);
 if (recType == 2)
     psfIm = imread(strcat(data_folder,'5-PSF_avg_centered.tif'));
     cutoff = 0.15;      %Cut-off     
@@ -23,7 +23,7 @@ else
     PSF = [];
     cutoff = 0;
 end
-ratio = 4;          %Sub-sampling ratio
+ratio = [4 4];          %Sub-sampling ratio % change to x-y ratio
 
 %% Adjusting PSF size to measurement wavelength
 if (recType == 2)
@@ -68,8 +68,8 @@ disp(['Reconstruction time: ', num2str(t), ' s']);
 
 %% plot intensity profile along sample
 % normalize two contrasting objects
-rec_normline = mapminmax(rec(125,:),0,1);
-imFull_normline = mapminmax(imFull(125,:),0,1);
+rec_normline = mapminmax(rec(400,:),0,1);
+imFull_normline = mapminmax(imFull(400,:),0,1);
 figure(2)
 plot(1:size(rec,2), rec_normline, 1:size(imFull,2), circshift(imFull_normline,-4))
 legend('reconstructed','full resolution')

@@ -22,7 +22,7 @@ function [recImage, sparseData] = ConfocalCS(image, ratio, method, PSF, cutoff)
 % Copyright (C) 2015-2017  Nicolas Pavillon, Osaka University
 
 path(path,genpath('./TVAL3'));
-if (ratio < 1)
+if (any(ratio < 1)) % modify to suit 2d ratio
     error('ratio must be > 1.');
 end
 if (method ~= 1 && method ~= 2)
@@ -41,15 +41,16 @@ end
 
 %% Preparing indices in which to put data
 % this part was modified to suit square FOV from DMD
+% mode to suit uneven sparisity along x-y direction@20221103
 s = size(image); 
-[subX, subY] = meshgrid( floor(ratio/2)+1:ratio:ratio*s(2), ...
-                         floor(ratio/2)+1:ratio:ratio*s(1)); 
+[subX, subY] = meshgrid( floor(ratio(2)/2)+1:ratio(2):ratio(2)*s(2), ...
+                         floor(ratio(1)/2)+1:ratio(1):ratio(1)*s(1)); 
                      
 %Computing indices, sparse raw_data to reconstruction dimension
-newIdx = sub2ind(ratio*s, subY(:), subX(:)); 
+newIdx = sub2ind(ratio.*s, subY(:), subX(:)); 
 
 %% Preparing sparse data
-sparseData = zeros(ratio*s);
+sparseData = zeros(ratio.*s);
 sparseData(newIdx) = image(:);
 
 %Finally, randomize indices
