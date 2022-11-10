@@ -52,7 +52,7 @@ if (recType == 2)
     PSF = interp2(xx, yy, psfIm, xxi, yyi);
     %Force border ones (outside measured range if any) to be at background level
     nanIdx = find(isnan(PSF(:)));
-    PSF(nanIdx) = median(psfIm(:));
+    PSF(nanIdx) = median(psfIm(:));    
 end
 
 tic
