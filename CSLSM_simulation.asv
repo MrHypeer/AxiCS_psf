@@ -11,10 +11,10 @@ clear all
 recType = 2;
 
 %% Retrieve data
-imageName = 'bead'; %other: im2
+imageName = 'sharpAndSmooth'; %other: im2
 
-psf_pxl = [3,4,5,6];
-sub_samp = [2,3,4,5,6,7,8,9,10];
+psf_pxl = [3,4,5,6,7,8];
+sub_samp = [5,6,7];
 metrics = zeros(length(sub_samp),3,length(psf_pxl));
 
 data_folder = '../data_psf/Confocal_Data/append/simulationGeneration/';
@@ -84,7 +84,7 @@ for ii_psf = 1:length(psf_pxl)
         % resize reconstructed iamge into original size
         [x_rec, y_rec] = size(rec);
         [x_ori, y_ori] = size(imFull);
-        xx_rec = -(x_ori/2-1):x_ori/(x_rec+1):x_ori/2;
+        xx_rec = -(x_ori/2-1):x_ori/x_rec:x_ori/2+x_ori/x_rec;
         xx_ori = -(x_ori/2-1):x_ori/2;
         [XX_rec,YY_rec] = meshgrid(xx_rec, xx_rec);
         [XX_ori, YY_ori] = meshgrid(xx_ori, xx_ori);
@@ -100,7 +100,7 @@ for ii_psf = 1:length(psf_pxl)
         title(strcat('line across x=',num2str(idx)))
         % calculate PSNR
         [psnr_value, snr_value] = psnr(rec_norm, imFull_norm);
-        RMSE = sqrt(immse(rec_norm, imFull_norm));
+        RMSE = sqrt(sum((rec_norm-imFull_norm).^2));
         disp(strcat('psf/sub:',num2str(psf_pxl(ii_psf)),'/',num2str(sub_samp(ii_subsamp))))
         disp(strcat('psnr,snr,rmse: ',num2str(psnr_value),',',num2str(snr_value),',',num2str(RMSE)))
         metrics(ii_subsamp,:,ii_psf) = [psnr_value, snr_value, RMSE];

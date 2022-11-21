@@ -71,7 +71,7 @@ switch(method)
 end
     
 %Measurement, modelled by measurement matrix
-f = A(sparseData(:), 1);
+f = A(sparseData(:), 1); % original is 1
 
 %% Preparing parameters
 clear opts

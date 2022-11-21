@@ -7,7 +7,7 @@
 % Copyright (C) 2015-2017  Nicolas Pavillon, Osaka University
 
 %% Choose reconstruction type: 1 (spatial) or 2 (PSF included)
-recType = 1;
+recType = 2;
 
 %% Retrieve data
 imageName = 'im1'; %other: im2
@@ -22,7 +22,7 @@ else
     PSF = [];
     cutoff = 0;
 end
-ratio = 4;          %Sub-sampling ratio
+ratio = [4,4];          %Sub-sampling ratio
 
 %% Adjusting PSF size to measurement wavelength
 if (recType == 2)

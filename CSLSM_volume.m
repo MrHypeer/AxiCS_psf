@@ -13,8 +13,8 @@ recType = 2;
 %% Retrieve data
 data_folder = '../data_psf/Confocal_Data/append/';
 imageName = ''; %other: im2
-lowRes_name = 'DMDGalvoX0Y60Div128Z30Div15St40_Vol.tif';
-fullRes_name = 'DMDGalvoX0Y60Div256Z30Div30St40_Vol.tif';
+lowRes_name = 'FOVStack_Dz09Lay36_lowRes.tif';
+fullRes_name = 'FOVStack_Dz09Lay36.tif';
 xPxl = 512;
 im_raw = readMultiTiff([data_folder, imageName, lowRes_name],0); % subsample data
 imFull_raw = readMultiTiff([data_folder, imageName, fullRes_name],0); % full resolution data
@@ -22,13 +22,14 @@ imFull_raw = readMultiTiff([data_folder, imageName, fullRes_name],0); % full res
 %% reconstruction volume along x-axis
 imFull_rec = zeros(size(imFull_raw));
 samples_rec = imFull_rec;
-
+psnr_yz = zeros(1,xPxl);
+psnr_xy = zeros(1,size(imFull_raw,3));
 tic
 for ii_x = 1:xPxl
     im = squeeze(im_raw(:,ii_x,:));
     imFull = squeeze(imFull_raw(:,ii_x,:));
     if (recType == 2)
-        psfIm = imread(strcat(data_folder,'5-PSF_avg_centered.tif'));
+        psfIm = imread(strcat(data_folder,'5-PsfGen1.tif'));
         cutoff = 0.15;      %Cut-off     
     else
         PSF = [];
@@ -39,13 +40,13 @@ for ii_x = 1:xPxl
     %% Adjusting PSF size to measurement wavelength
     if (recType == 2)
         %Pixel size for PSF measured by beads
-        dx = 20.716; %nm
+        dx = 100; %nm
         %Emission of beads
-        lambda = 567; %nm
+        lambda = 520; %nm
 
         %Pixel size of actual images (cells, ER-tracker)
-        dx2 = 172.63; %nm, px size for ER-tracker with zoom 1.2x
-        lambda2 = 511; %nm, ER-tracker
+        dx2 = 200; %nm, px size for ER-tracker with zoom 1.2x
+        lambda2 = 570; %nm, ER-tracker
 
         %Scaling the pixel size with the wavelength
         % why pixel size is related with wavelength???
@@ -68,18 +69,25 @@ for ii_x = 1:xPxl
 
     
     [rec, samples] = ConfocalCS(im, ratio, recType, PSF, cutoff);
+    psnr_yz(ii_x) = psnr(rec,imFull);
     imFull_rec(:,ii_x,:) = rec;
     samples_rec(:,ii_x,:) = samples;
+    
 end
 t = toc;
 
+%% compare PSNR and SNR along x-y plane
+
+for ii_z = 1:size(imFull_raw,3)
+   psnr_xy(ii_z) = psnr(imFull_rec(:,:,ii_z),imFull_raw(:,:,ii_z)); 
+end
+psnr(imFull_rec(:,:,:),imFull_raw(:,:,:));
 %% save and show result 
 str = split(fullRes_name,'.');
-saveMultipageTiff(imFull_rec, [data_folder str{1},'_PSFCS.tif'])
-saveMultipageTiff(imFull_rec, [data_folder str{1},'_PSFCS.tif'])
+saveMultipageTiff(imFull_rec, [data_folder, str{1},'_PSFCS_psfGen.tif'])
 
 
-slice_idx = randi(xPxl); % randomly select a slice to see the result
+slice_idx = randi([100,400]); % randomly select a slice to see the result
 figure(1)
 subplot(221), imagesc(squeeze(im_raw(:,slice_idx,:))), title('Measured low-res image')
 subplot(222), imagesc(squeeze(samples_rec(:,slice_idx,:))), title('Sampling grid');
