@@ -45,43 +45,75 @@ recType = 2;
 % %     saveMultipageTiff(stack_data, name2save)
 % end
 
-%% noise at specific psf but variatn noise level
-imageName = 'bead'; 
-psf_pxl = 3;
+% %% noise at specific psf but variatn noise level
+% imageName = 'sharpAndSmooth'; 
+% psf_pxl = 3;
+% sub_samp = 2:10;
+% noise_level = [0 0.01,0.03,0.05,0.07];
+% metrics = zeros(length(sub_samp),3,length(noise_level));
+% 
+% data_folder = '../data_psf/Confocal_Data/append/simulationGeneration/';
+% for ii_noise = 1:length(noise_level)
+%     stack_data = zeros(1050,1050,length(sub_samp)+1);
+%     name2save = strcat(data_folder, imageName, '_', num2str(psf_pxl),...
+%         'pxl_subx2y2-10_noise',num2str(noise_level(ii_noise)),'.tif');
+%     for ii_subsamp = 1:length(sub_samp)
+%         im = imread(strcat(data_folder, imageName, '_', num2str(psf_pxl),...
+%         'pxl_subx2y',num2str(sub_samp(ii_subsamp)),'noise',...
+%            num2str(noise_level(ii_noise)),'.tif'));
+%         imFull = imread(strcat(data_folder, imageName, '_',num2str(psf_pxl),'pxl.tif'));
+%         psf = double(imread(strcat(data_folder,'PSF-',num2str(psf_pxl),'pxl.tif')));
+%         
+%         ratio = [sub_samp(ii_subsamp), 2];          %Sub-sampling ratio % change to x-y ratio
+%         [rec_norm, imFull_norm] = runCSLSM(imFull,im, psf, ratio, 2);
+%         % calculate PSNR
+%         [psnr_value, snr_value] = psnr(rec_norm, imFull_norm);
+%         RMSE = sqrt(immse(rec_norm, imFull_norm));
+%         disp(strcat('noise level:', num2str(noise_level(ii_noise))))
+%         disp(strcat('psf/sub:',num2str(psf_pxl),'/',num2str(sub_samp(ii_subsamp))))
+%         disp(strcat('psnr,snr,rmse: ',num2str(psnr_value),',',num2str(snr_value),',',num2str(RMSE)))
+%         metrics(ii_subsamp,:,ii_noise) = [psnr_value, snr_value, RMSE];
+%         %% save image
+% 
+%         stack_data(1:size(rec_norm,1),1:size(rec_norm,2),ii_subsamp+1) = rec_norm;
+%     end
+%     stack_data(1:size(rec_norm,1),1:size(rec_norm,2),1) = imFull_norm;
+%     saveMultipageTiff(stack_data, name2save)
+% end
+
+%% reconstruction using different psf from acquisition
+imageName = 'sharpAndSmooth'; %other: im2
+psf_pxl = 3; % acquisition psf
+psf_rec = [3,4,5,6]; % reconstruction psf
 sub_samp = 2:10;
-noise_level = [0.01,0.03,0.05,0.07];
-metrics = zeros(length(sub_samp),3,length(noise_level));
+metrics = zeros(length(sub_samp),3,length(psf_rec));
 
 data_folder = '../data_psf/Confocal_Data/append/simulationGeneration/';
-for ii_noise = 1:length(noise_level)
+for ii_psf = 1:length(psf_rec)
     stack_data = zeros(1050,1050,length(sub_samp)+1);
     name2save = strcat(data_folder, imageName, '_', num2str(psf_pxl),...
-        'pxl_','sub',num2str(),'noisestack.tif');
+        'pxl_diffpsf_stack.tif');
     for ii_subsamp = 1:length(sub_samp)
-        im = imread(strcat(data_folder, imageName, '_', num2str(psf_pxl(ii_noise)),...
-        'pxl_sub',num2str(sub_samp(ii_subsamp)),'noise',...
-           num2str(noise_level(ii_noise)),'.tif'));
-        imFull = imread(strcat(data_folder, imageName, '_',num2str(psf_pxl(ii_noise)),'pxl.tif'));
-        psf = double(imread(strcat(data_folder,'PSF-',num2str(psf_pxl(ii_noise)),'pxl.tif')));
+        im = imread(strcat(data_folder, imageName, '_', num2str(psf_pxl),...
+        'pxl_sub',num2str(sub_samp(ii_subsamp)),'.tif'));
+        imFull = imread(strcat(data_folder, imageName, '_',num2str(psf_pxl),'pxl.tif'));
+        psf = double(imread(strcat(data_folder,'PSF-',num2str(psf_rec(ii_psf)),'pxl.tif')));
         
         ratio = [sub_samp(ii_subsamp) sub_samp(ii_subsamp)];          %Sub-sampling ratio % change to x-y ratio
         [rec_norm, imFull_norm] = runCSLSM(imFull,im, psf, ratio, 2);
         % calculate PSNR
         [psnr_value, snr_value] = psnr(rec_norm, imFull_norm);
         RMSE = sqrt(immse(rec_norm, imFull_norm));
-        disp(strcat('noise level:', num2str(noise_level(ii_noise))))
-        disp(strcat('psf/sub:',num2str(psf_pxl(ii_noise)),'/',num2str(sub_samp(ii_subsamp))))
+        disp(strcat('psf/sub:',num2str(psf_pxl(ii_psf)),'/',num2str(sub_samp(ii_subsamp))))
         disp(strcat('psnr,snr,rmse: ',num2str(psnr_value),',',num2str(snr_value),',',num2str(RMSE)))
-        metrics(ii_subsamp,:,ii_noise) = [psnr_value, snr_value, RMSE];
+        metrics(ii_subsamp,:,ii_psf) = [psnr_value, snr_value, RMSE];
         %% save image
 
         stack_data(1:size(rec_norm,1),1:size(rec_norm,2),ii_subsamp+1) = rec_norm;
     end
     stack_data(1:size(rec_norm,1),1:size(rec_norm,2),1) = imFull_norm;
-    saveMultipageTiff(stack_data, name2save)
+%     saveMultipageTiff(stack_data, name2save)
 end
-
-
 
 
 
@@ -164,8 +196,10 @@ function [rec_norm, imFull_norm] = runCSLSM(imgFull, imgSub, psf, ratio, recType
         [x_ori, y_ori] = size(imgFull);
         xx_rec = -(x_ori/2-1):x_ori/(x_rec+1):x_ori/2;
         xx_ori = -(x_ori/2-1):x_ori/2;
-        [XX_rec,YY_rec] = meshgrid(xx_rec, xx_rec);
-        [XX_ori, YY_ori] = meshgrid(xx_ori, xx_ori);
+        yy_rec = -(y_ori/2-1):y_ori/(y_rec+1):y_ori/2;
+        yy_ori = -(y_ori/2-1):y_ori/2;
+        [XX_rec,YY_rec] = meshgrid(yy_rec, xx_rec);
+        [XX_ori, YY_ori] = meshgrid(yy_ori, xx_ori);
         imFull_trim = interp2(XX_ori, YY_ori, imgFull, XX_rec, YY_rec);
         % normalize two contrasting objects, shown in scaled size
         idx = randi(size(rec,1));
