@@ -75,8 +75,8 @@ f = A(sparseData(:), 1); % original is 1
 
 %% Preparing parameters
 clear opts
-opts.mu = 2^8;
-opts.beta = 2^5;
+opts.mu = 2^4;
+opts.beta = 2^4;
 %To push quality in case of low-noise signal
 % opts.mu = 2^12; opts.beta = 2^9;
 opts.tol = 1E-3;
