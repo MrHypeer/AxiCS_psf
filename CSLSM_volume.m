@@ -15,7 +15,7 @@ data_folder = '../data_psf/Confocal_Data/append/';
 imageName = 'PollenStack'; %other: im2
 lowRes_name = '_sub2.tif';
 fullRes_name = '.tif';
-name2save = 'PollenStack_sub2_CR2.tif';
+name2save = 'PollenStack_sub2_CR2_2.tif';
 
 xPxl = 512;
 im_raw = readMultiTiff([data_folder, imageName, lowRes_name],0); % subsample data, z*y*x
