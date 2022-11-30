@@ -11,13 +11,13 @@ clear all
 recType = 2;
 
 %% Retrieve data
-imageName = 'wfsample1'; %other: im2
+imageName = 'PollenStack_x512y112'; %other: im2
 
-data_folder = '../data_psf/Confocal_Data/';
-im = imread([data_folder, imageName, '-512.tif']);
-imFull = imread([data_folder, imageName, '-1024.tif']);
+data_folder = '../data_psf/Confocal_Data/append/';
+im = imread([data_folder, imageName, '_sub2.tif']);
+imFull = imread([data_folder, imageName, '.tif']);
 if (recType == 2)
-    psfIm = double(imread(strcat(data_folder,'5-PsfGen4.tif')));
+    psfIm = double(imread(strcat(data_folder,'5-PSF_avg_centered.tif')));
     cutoff = 0.15;      %Cut-off     
 else
     PSF = [];
@@ -77,8 +77,8 @@ plot(1:size(rec,2), rec_norm(idx,:), 1:size(imFull,2), circshift(imFull_norm(idx
 legend('reconstructed','full resolution')
 title(strcat('line across x=',num2str(idx)))
 % calculate PSNR
-[psnr_value, snr_value] = psnr(rec_norm, imFull_norm)
-RMSE = sqrt(immse(rec_norm, imFull_norm))
+[psnr_value, snr_value] = psnr(rec_norm, double(imFull_norm))
+RMSE = sqrt(immse(rec_norm, double(imFull_norm)))
 
 
 

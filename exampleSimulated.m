@@ -14,7 +14,7 @@ addpath('./Simul');
 path(path,genpath('./TVAL3'));
 
 %% Set general parameters
-method = 4;     %Choose reconstruction type: 1 (Fourier) 2 (Hadamard), 
+method = 1;     %Choose reconstruction type: 1 (Fourier) 2 (Hadamard), 
                 %3 (sub-spatial), 4 (PSF included)
 doNoise = 1;    %Add noise
 doSmooth = 1;   %Use smoothing (i.e. PSF)
