@@ -1,6 +1,10 @@
 function saveMultipageTiff(data, filename)
 % this code compress data to stacked tiff, data should be in (x,y,z)
 % format
+    if length(size(data)) == 2
+        temp(:,:,2) = data;
+        data = temp(:,:,2);
+    end
     t = Tiff(filename, 'w');
     tagstruct.ImageLength = size(data, 1);
     tagstruct.ImageWidth = size(data, 2);
