@@ -11,32 +11,32 @@ clear all
 recType = 2;
 
 %% Retrieve data
-data_folder = '../data_psf/Confocal_Data/append/';
-imageName = 'PollenStack'; %other: im2
-lowRes_name = '_sub2.tif';
-fullRes_name = '.tif';
-name2save = 'PollenStack_sub2_CR2_2.tif';
-
-xPxl = 512;
-im_raw = readMultiTiff([data_folder, imageName, lowRes_name],0); % subsample data, z*y*x
-imFull_raw = readMultiTiff([data_folder, imageName, fullRes_name],0); % full resolution data
+data_folder = '..\data_psf\Confocal_Data\append\beadGen\';
+stackName = 'bead_spar2_PSF-5pxl_noisestack1.tif'; %other: im2
+name2save = 'bead_spar2_PSF-5pxl_noisestack1_CR2.tif';
+dat2save = 'bead_spar2_PSF-5pxl_noisestack1.mat';
+im_Full = readMultiTiff([data_folder, stackName],0); % full resolution data
+im_ori = squeeze(im_Full(:,:,1)); % original data without noise
+im_raw = im_Full(1:2:end,1:2:end,:);
 
 %% reconstruction volume along x-axis
-x_full = size(imFull_raw,1);
-z_full = size(imFull_raw,3);
-y_full = size(imFull_raw,2);
+recPxl = size(im_Full,3);
+x_full = size(im_Full,1);
+y_full = size(im_Full,2);
+z_full = size(im_Full,3);
 
-imFull_rec = zeros(z_full, y_full, x_full); % used for normalization
+imFull_rec = zeros(x_full, y_full, z_full); % used for normalization
 samples_rec = imFull_rec;
-psnr_yz = zeros(1,xPxl);
-psnr_xy = zeros(1,size(imFull_raw,3));
+psnr_rec = zeros(1,recPxl); % compare with noise-less img
+psnr_ortrec = zeros(1,x_full);
+
 tic
-for ii_x = 1:xPxl
-    disp(['current layer:',num2str(ii_x),' /',num2str(xPxl)])
-    im = squeeze(im_raw(:,:,ii_x));
+for ii_rec = 1:recPxl
+    disp(['current layer:',num2str(ii_rec),' /',num2str(recPxl)])
+    im = squeeze(im_raw(:,:,ii_rec));
 %     imFull = squeeze(imFull_raw(:,ii_x,:));
     if (recType == 2)
-        psfIm = imread(strcat(data_folder,'5-PSF_avg_centered.tif'));
+        psfIm = imread(strcat(data_folder,'PSF-5pxl-64.tif')); % 
         cutoff = 0.15;      %Cut-off     
     else
         PSF = [];
@@ -47,12 +47,12 @@ for ii_x = 1:xPxl
     %% Adjusting PSF size to measurement wavelength
     if (recType == 2)
         %Pixel size for PSF measured by beads
-        dx = 20.716; %nm
+        dx = 100; %nm
         %Emission of beads
         lambda = 567; %nm
 
         %Pixel size of actual images (cells, ER-tracker)
-        dx2 = 172.63; %nm, px size for ER-tracker with zoom 1.2x
+        dx2 = 100; %nm, px size for ER-tracker with zoom 1.2x
         lambda2 = 511; %nm, ER-tracker
 
         %Scaling the pixel size with the wavelength
@@ -76,23 +76,23 @@ for ii_x = 1:xPxl
 
     
     [rec, samples] = ConfocalCS(im, ratio, recType, PSF, cutoff);
-%     psnr_yz(ii_x) = psnr(rec,imFull);
-    imFull_rec(:,:,ii_x) = rec;
-    samples_rec(:,:,ii_x) = samples;
+    psnr_rec(ii_rec) = psnr(rec,im_ori);
+    imFull_rec(:,:,ii_rec) = rec;
+    samples_rec(:,:,ii_rec) = samples;
     
 end
 t = toc;
 
-%% compare PSNR and SNR along x-y plane
-
-% for ii_z = 1:size(imFull_raw,3)
-%    psnr_xy(ii_z) = psnr(imFull_rec(:,:,ii_z),imFull_raw(:,:,ii_z)); 
+%% compare PSNR and SNR along orthonogal reconstruction direction
+% for ii_ort = 1:x_full
+%    psnr_ortrec(ii_ort) = psnr(imFull_rec(:,:,ii_ort),imFull_raw(:,:,ii_ort)); 
 % end
 % psnr(imFull_rec(:,:,:),imFull_raw(:,:,:));
-%% save and show result 
+%% save result and data
 saveMultipageTiff(imFull_rec, strcat(data_folder, name2save))
+save(strcat(data_folder, dat2save), 'psnr_rec')
 
-
+%% show result
 slice_idx = randi(x_full); % randomly select a slice to see the result
 figure(1)
 subplot(221), imagesc(squeeze(im_raw(:,:,slice_idx))), title('Measured low-res image')
