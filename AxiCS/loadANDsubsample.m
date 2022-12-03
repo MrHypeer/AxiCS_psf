@@ -1,21 +1,62 @@
 clear all;
 
-%% load file to be processed
-filename = 'PollenStack_avg40.tif';
+%% param setting
+target_folder = 'D:\OneDrive - City University of Hong Kong\CUHK\08 project\14 CS\data_psf\Confocal_Data\append\beadGen\';
+filename = 'bead_spar2_PSF-5pxl_gauM0.1V0.07poi0.tif';
+suffix = '_sub2.tif';
+x_size = 512;
+y_size = 512;
+z_size = 113;
+
+%% load data
+addpath(target_folder)
 raw_data = readMultiTiff(filename, 0);
 
-layer = size(raw_data,3);
+layer = 1;
 x_pxl = size(raw_data,1);
 y_pxl = size(raw_data,2);
+cut_stack = raw_data(1:2:end, 1:2:end);
 
-cut_stack = zeros(56,256,512);
-for ii_x = 1:x_pxl
-    cut_stack(:,:,ii_x) = permute(raw_data(ii_x,1:2:end,1:2:end),[1 3 2]);
+if length(raw_data) == 3
+    layer = size(raw_data,3);
+    cut_stack = zeros(z_size,y_size,x_size); % z*y*x;
+    for ii_z = 1:layer
+        cut_stack(:,:,ii_x) = permute(raw_data(ii_x,1:2:end,1:2:end),[1 3 2]);
+    end
 end
 
-imagesc(cut_stack(:,:,300))
+%% plot cut_stack
+imagesc(cut_stack(:,:))
 
-saveMultipageTiff(cut_stack, 'PollenStack_avg40_sub2.tif')
+%% save data
+k = strfind(filename,'.');
+name2save = strcat(target_folder,filename(1:k(end)-1),suffix);
+saveMultipageTiff(cut_stack, name2save)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 function stacked_img = readMultiTiff(filename, twochannelflag)
     %% this section reads single .tiff file with same name in format (x,y,z)
