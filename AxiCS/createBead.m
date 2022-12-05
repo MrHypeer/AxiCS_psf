@@ -77,6 +77,7 @@ if sum(gaussianNoise_var) ~= 0
             stack_data(:,:,length(gaussianNoise_var)*(ii_mean-1)+ii_var) = ...
                 temp;
             fileID = fopen(strcat(p, target_folder, name2save_txt),'a');
+
             formatSpec = '%2.0u: gaussian nosie mean/var is %4.2f/%4.2f, poisson noise is %4.2f\n';
             fprintf(fileID, formatSpec,...
                 [count, gaussianNoise_mean(ii_mean), gaussianNoise_var(ii_var), poissionNoise]);
