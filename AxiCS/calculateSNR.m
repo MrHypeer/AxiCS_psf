@@ -2,57 +2,68 @@
 close all; clear all
 %% list all data to be processed
 % sort data in natural order
-file_pattern = 'PollenStack_avg*.tif';
+file_fodler = 'D:\OneDrive - City University of Hong Kong\CUHK\08 project\14 CS\data_psf\Confocal_Data\append\beadGen\';
+oldFolder = cd (file_fodler);
+
+file_pattern = 'bead_spar2_PSF-5pxl_noisestack*.tif';
 d = dir(file_pattern);
 nameCell = cell(length(d)-2,1);
 
 for i = 1:length(d)
-%     disp(d(i).name);
     temp = d(i).name;
-    splitname = split(temp,'_');
-    nameCell{i} = char(splitname(2));
+    nameCell{i} = temp;
 end
 d2 = sort_nat(nameCell);
-d2 = d2(1:3:end);
-patt_extr = d2;
 
+cd(oldFolder)
 % compose new file with natural order
-for ii_file = 1:length(d2)
-   d2(ii_file) = strcat(splitname(1),'_',cell2mat(d2(ii_file)),'.tif');
-end
+% for ii_file = 1:length(d2)
+%    d2(ii_file) = strcat(splitname(1),'_',cell2mat(d2(ii_file)),'.tif');
+% end
 
 %% load data and calculate snr value
 snr_method = 2; % 1-whole volume, 2-single slice along x-axis
-z_fisrt = 0; % 0-full raw image, 1-rec/subsample image
+z_fisrt = 0; % 0-full raw image(x,y,z), 1-rec/subsample image(z,y,x)
+naturalz = 1; % 0-snr along z-axis, 1-snr along x-axis
 
 % save snr value into a matrix, file_num * rec layer
 snr = [];
-for ii_stack = 1:length(d2)
-    data = readMultiTiff(cell2mat(d2(ii_stack)),0);
-    snr = [snr;calsnr(data, z_fisrt, snr_method)];
+data_full = readMultiTiff(strcat(file_fodler, cell2mat(d2(2))),0);
+
+for ii_stack = 1:1
+    data = readMultiTiff(strcat(file_fodler, cell2mat(d2(ii_stack))),0);
+    snr = [snr;calsnr(data, z_fisrt, snr_method,naturalz)];
+    % calculate PSNR with original image(no-noise image)
+    psnr_val = zeros(1, size(data,3));
+    for ii_psnr = 1:size(data,3)
+        psnr_val(ii_psnr) = psnr(squeeze(data(:,:,ii_psnr)), squeeze(data_full(:,:,1)));
+    end
 end
 
 
+
+
+
 %% plot data
-figure(1)
-plot(snr');
-title('full-res SNR comp. with diff. integration frames')
-legend(patt_extr(1:ii_stack))
-axis([1 size(snr,2) min(min(snr)) max(max(snr))+1])
+% figure(1)
+% plot(snr');
+% title('full-res SNR comp. with diff. integration frames')
+% legend(patt_extr(1:ii_stack))
+% axis([1 size(snr,2) min(min(snr)) max(max(snr))+1])
 
 
 %% analysis from saved data
-clear all
-load('snr_pollen_yz')
-bar_data = cat(3,snr_yz_raw, snr_yz_recraw, snr_yz_rec);
-% plot bar graph under same avg number, each slice has three data points
-idx_avg = 7; % [2 5 8 11 20 30 40]
-figure (2) 
-plot(squeeze(bar_data(idx_avg,:,:)))
-legend('raw','raw-sub','rec')
-title('SNR comp., sum: 40')
-xlabel('rec. plane index/-'); ylabel('SNR/dB')
-axis([1 size(bar_data,2) min(min(min(bar_data))) max(max(max(bar_data)))+1])
+% clear all
+% load('snr_pollen_yz')
+% bar_data = cat(3,snr_yz_raw, snr_yz_recraw, snr_yz_rec);
+% % plot bar graph under same avg number, each slice has three data points
+% idx_avg = 7; % [2 5 8 11 20 30 40]
+% figure (2) 
+% plot(squeeze(bar_data(idx_avg,:,:)))
+% legend('raw','raw-sub','rec')
+% title('SNR comp., sum: 40')
+% xlabel('rec. plane index/-'); ylabel('SNR/dB')
+% axis([1 size(bar_data,2) min(min(min(bar_data))) max(max(max(bar_data)))+1])
 
 %%
 function stacked_img = readMultiTiff(filename, twochannelflag)
@@ -75,7 +86,7 @@ function stacked_img = readMultiTiff(filename, twochannelflag)
 end
 
 
-function snr = calsnr(data, z_first, snr_method)
+function snr = calsnr(data, z_first, snr_method, naturalz)
 %% decide data dimesion depending on rec or raw image
 if z_first == 1 %if z is first dim, swap axis to match original full image
     data = permute(data,[3,2,1]);
@@ -115,8 +126,14 @@ switch snr_method
         formatSpec = strcat(filename," | SNR: %4.2f \n");
         fprintf(formatSpec, snr);
     case 2 % calculate snr in every single slice using global threshold
-        snr = zeros(1,x_pxl);
-        for ii_x = 1:x_pxl
+        if naturalz
+            rec_pxl = z_pxl;
+        else
+            rec_pxl = x_pxl;
+        end
+        
+        snr = zeros(1,rec_pxl);
+        for ii_x = 1:rec_pxl
             temp = squeeze(data(ii_x,:,:));
 %             figure(2)
 %             imagesc(squeeze(temp))
