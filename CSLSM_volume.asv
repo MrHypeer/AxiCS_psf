@@ -22,7 +22,7 @@ im_Full = readMultiTiff([data_folder, stackName],0); % full resolution data
 im_ori = squeeze(im_Full(:,:,1)); % original data without noise
 im_raw = im_Full(1:ratio(1):end,1:ratio(2):end,:); % subsampling data using CR=2
 rec_z = 1; % if 1, rec along z layers, if 0, rec along x-axis
-opt_tuning = 1; % if 1, opts will adaptively change whether using grid search or automatical calculation
+opt_tuning = 0; % if 1, opts will adaptively change whether using grid search or automatical calculation
 
 %% reconstruction volume along x-axis
 x_full = size(im_Full,1);
@@ -38,11 +38,12 @@ imFull_rec = []; % used for normalization
 samples_rec = [];
 psnr_rec = []; % compare with noise-less img
 psnr_ortrec = [];
-count = 0;
 
 tic
-fileID = fopen(strcat(data_folder, log2save),'w'); % save reconstruciton log
-for ii_rec = 1:recPxl
+
+fileID = fopen(strcat(data_folder, log2save),'a'); % save reconstruciton log
+
+for ii_rec = 1:recPxl-11
     disp(['current layer:',num2str(ii_rec),' /',num2str(recPxl)])
     im = squeeze(im_raw(:,:,ii_rec));
 %     imFull = squeeze(imFull_raw(:,ii_x,:));
@@ -87,10 +88,9 @@ for ii_rec = 1:recPxl
     % set reconstruction params
     clear opts
     if opt_tuning % change three: mu, beta, tol
-        for mu = 4:13
-            for beta =  4:13
-                for tol = [1e-1 1e-2 1e-3 1e-4 1e-5 1e-6]
-                    count = count + 1;
+        for mu = 3:13
+            for beta =  3:13
+                for tol = [1e-2 1e-3 1e-4 1e-5 1e-6]
                     opts.mu = 2^mu;
                     opts.beta = 2^beta;
                     opts.tol = tol;
@@ -107,14 +107,13 @@ for ii_rec = 1:recPxl
                     samples_rec = cat(3,samples_rec, samples);
                     
                     % write reconstruction details
-                    formatSpec = '%2.0u \t %2.0u th rec layer,\t mu:%4.2f,\t beta:%4.2f,\t tol:%4.2e,\t psnr:%4.2f\n';
+                    formatSpec = '%2.0u th rec layer,\t mu:%4.2f\t, beta:%4.2f\t, tol:%4.2f\t, psnr:%4.2f\n';
                     fprintf(fileID, formatSpec,...
-                            [count ii_rec, opts.mu, opts.beta, opts.tol, temp_psnr]);
+                            [ii_rec, opts.mu, opts.beta, opts.tol, temp_psnr]);
                 end
             end
         end
     else % default params sutiable for tpm
-        count = count + 1;
         opts.mu = 2^4;
         opts.beta = 2^4;
         %To push quality in case of low-noise signal
@@ -127,15 +126,14 @@ for ii_rec = 1:recPxl
         
         % execute reconstruction
         [rec, samples] = AxiCS(im, ratio, recType, PSF, cutoff,opts);
-        temp_psnr = psnr(rec./max(max(rec)),im_ori./max(max(im_ori)));
-        psnr_rec = cat(1, psnr_rec, temp_psnr);
+        psnr_rec = cat(1, psnr_rec, psnr(rec./max(max(rec)),im_ori./max(max(im_ori))));
         imFull_rec = cat(3,imFull_rec, rec);
         samples_rec = cat(3,samples_rec, samples);
         
-        % write reconstruction details
-        formatSpec = '%2.0u \t %2.0u th rec layer,\t mu:%4.2f,\t beta:%4.2f,\t tol:%4.2e,\t psnr:%4.2f\n';
-        fprintf(fileID, formatSpec,...
-                            [count ii_rec, opts.mu, opts.beta, opts.tol, temp_psnr]);
+                            % write reconstruction details
+                    formatSpec = '%2.0u th rec layer,\t mu:%4.2f\t, beta:%4.2f\t, tol:%4.2f\t, psnr:%4.2f\n';
+                    fprintf(fileID, formatSpec,...
+                            [ii_rec, opts.mu, opts.beta, opts.tol, temp_psnr]);
     end
 end
 fclose(fileID); % close file
@@ -147,8 +145,8 @@ t = toc;
 % end
 % psnr(imFull_rec(:,:,:),imFull_raw(:,:,:));
 %% save result and data
-saveMultipageTiff(imFull_rec, strcat(data_folder, name2save))
-save(strcat(data_folder, dat2save), 'psnr_rec')
+% saveMultipageTiff(imFull_rec, strcat(data_folder, name2save))
+% save(strcat(data_folder, dat2save), 'psnr_rec')
 
 %% show result
 % slice_idx = randi(x_full); % randomly select a slice to see the result

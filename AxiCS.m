@@ -1,4 +1,4 @@
-function [recImage, sparseData] = AxiCS(image, ratio, method, PSF, cutoff)
+function [recImage, sparseData] = AxiCS(image, ratio, method, PSF, cutoff, opts)
 % Function takes a sub-sampled image measurement in, 
 % arranges the data points in a grid of the same size as the final resolution, 
 % and performs inversion through compressed sensing to retrieve the full image.
@@ -74,21 +74,23 @@ end
 f = A(sparseData(:), 1); % original is 1
 
 %% Preparing parameters
-clear opts
-opts.mu = 2^4;
-opts.beta = 2^4;
-%To push quality in case of low-noise signal
-% opts.mu = 2^12; opts.beta = 2^9;
-opts.tol = 1E-3;
-opts.maxit = 300;
-opts.TVnorm = 1;
-opts.nonneg = true;
-opts.isreal = true;
+% clear opts
+% opts.mu = 2^4;
+% opts.beta = 2^4;
+% %To push quality in case of low-noise signal
+% % opts.mu = 2^12; opts.beta = 2^9;
+% opts.tol = 1E-3;
+% opts.maxit = 300;
+% opts.TVnorm = 1;
+% opts.nonneg = true;
+% opts.isreal = true;
 
 %% Reconstruction itself
 recImage = TVAL3(A,f,p,q,opts);
 
-%End of ConfocalCS
+
+
+%End of AxiCS
 
 %% Functions
 %Spatial implicit functions
